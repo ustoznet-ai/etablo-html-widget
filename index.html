@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестовый HTML виджет для табло 240x60px</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            font-family: Arial, Tahoma, sans-serif;
+            overflow: hidden;
+            width: 240px;
+            height: 60px;
+        }
+        
+        .bus-container {
+            width: 240px;
+            height: 60px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 1px solid #444;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .header {
+            background: #333;
+            color: #00ff00;
+            text-align: center;
+            font-size: 8px;
+            font-weight: bold;
+            padding: 1px 0;
+            letter-spacing: 0.5px;
+        }
+        
+        .bus-row {
+            display: flex;
+            align-items: center;
+            padding: 1px 2px;
+            border-bottom: 1px solid #333;
+            min-height: 18px;
+            font-size: 9px;
+            color: #fff;
+        }
+        
+        .bus-row:last-child {
+            border-bottom: none;
+        }
+        
+        .route {
+            width: 35px;
+            font-weight: bold;
+            color: #ffff00;
+            text-align: center;
+            font-size: 10px;
+            background: #444;
+            border-radius: 2px;
+            margin-right: 3px;
+            padding: 1px;
+        }
+        
+        .destination {
+            flex: 1;
+            font-size: 8px;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 2px;
+        }
+        
+        .time {
+            width: 35px;
+            font-weight: bold;
+            color: #00ff00;
+            text-align: center;
+            font-size: 9px;
+            background: rgba(0, 255, 0, 0.1);
+            border-radius: 2px;
+            padding: 1px;
+        }
+        
+        .no-buses {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #888;
+            font-size: 8px;
+            text-align: center;
+        }
+        
+        .update-indicator {
+            position: absolute;
+            top: 1px;
+            right: 2px;
+            width: 4px;
+            height: 4px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: blink 2s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        
+        /* Анимация появления данных */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bus-container">
+        <div class="header">АВТОБУСЫ</div>
+        <div class="update-indicator"></div>
+        
+        <div id="bus-data">
+            <!-- Данные автобусов будут загружены здесь -->
+            <div class="bus-row fade-in">
+                <div class="route">7A</div>
+                <div class="destination">АВТОВОКЗАЛ ШЫМБАЙ</div>
+                <div class="time">10м</div>
+            </div>
+            <div class="bus-row fade-in">
+                <div class="route">7A</div>
+                <div class="destination">ТОРГОВЫЙ КОМПЛЕКС_A</div>
+                <div class="time">23м</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Тестовые данные (замените на реальные данные от сервера)
+        const testBusData = [
+            { route: "7A", destination: "АВТОВОКЗАЛ ШЫМБАЙ", time: "10м" },
+            { route: "7A", destination: "ТОРГОВЫЙ КОМПЛЕКС_A", time: "23м" },
+            { route: "12", destination: "ЦЕНТР", time: "5м" }
+        ];
+
+        function updateBusData(busData) {
+            const container = document.getElementById('bus-data');
+            
+            if (!busData || busData.length === 0) {
+                container.innerHTML = '<div class="no-buses">НЕТ АВТОБУСОВ</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            // Показываем максимум 3 автобуса для размера 240x60
+            const displayData = busData.slice(0, 3);
+            
+            displayData.forEach((bus, index) => {
+                const row = document.createElement('div');
+                row.className = 'bus-row fade-in';
+                row.style.animationDelay = `${index * 0.1}s`;
+                
+                // Сокращаем длинные названия направлений
+                let destination = bus.destination;
+                if (destination.length > 15) {
+                    destination = destination.substring(0, 12) + '..';
+                }
+                
+                row.innerHTML = `
+                    <div class="route">${bus.route}</div>
+                    <div class="destination">${destination}</div>
+                    <div class="time">${bus.time}</div>
+                `;
+                
+                container.appendChild(row);
+            });
+        }
+
+        function formatTimeDisplay(minutes) {
+            if (minutes <= 0) return 'СЕЙЧАС';
+            if (minutes === 1) return '1м';
+            return `${minutes}м`;
+        }
+
+        // Функция для имитации обновления данных
+        function simulateDataUpdate() {
+            // Имитируем изменение времени прибытия
+            const updatedData = testBusData.map(bus => ({
+                ...bus,
+                time: formatTimeDisplay(Math.floor(Math.random() * 30) + 1)
+            }));
+            
+            updateBusData(updatedData);
+            console.log('🔄 Данные обновлены:', new Date().toLocaleTimeString());
+        }
+
+        // Инициализация
+        updateBusData(testBusData);
+        
+        // Обновление каждые 5 секунд для демонстрации
+        setInterval(simulateDataUpdate, 5000);
+        
+        // Функция для получения данных от вашего сервера
+        async function fetchRealBusData() {
+            try {
+                // Замените на URL вашего сервера
+                const response = await fetch('/api/bus-data');
+                const data = await response.json();
+                updateBusData(data);
+            } catch (error) {
+                console.error('Ошибка получения данных:', error);
+                // Fallback на тестовые данные
+                updateBusData(testBusData);
+            }
+        }
+        
+        console.log('🚌 HTML виджет табло загружен');
+        console.log('📐 Размер: 240x60 пикселей');
+        console.log('🔄 Автообновление каждые 5 секунд');
+    </script>
+</body>
+</html>
