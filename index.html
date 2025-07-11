@@ -19,51 +19,56 @@
         .bus-container {
             width: 240px;
             height: 60px;
-            background: #000;
+            background-color: #000;
             display: flex;
             flex-direction: column;
             position: relative;
+            margin: 0;
+            padding: 0;
         }
         
         .bus-row {
             display: flex;
             align-items: center;
             padding: 0;
-            min-height: 20px;
+            margin: 0;
+            height: 20px;
             font-size: 20px;
-            color: #ff0000;
             font-weight: normal;
+            color: #ff0000;
+            position: relative;
         }
         
         .route {
-            width: 40px;
+            position: absolute;
+            left: 0;
             font-weight: normal;
             color: #ff0000;
             text-align: left;
             font-size: 20px;
-            padding: 0;
-            margin: 0;
+            font-family: Tahoma, sans-serif;
         }
         
         .destination {
-            flex: 1;
+            position: absolute;
+            left: 40px;
             font-size: 20px;
+            font-weight: normal;
             color: #ff0000;
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            padding: 0 5px;
-            font-weight: normal;
+            overflow: visible;
+            font-family: Tahoma, sans-serif;
+            width: 160px;
         }
         
         .time {
-            width: 40px;
+            position: absolute;
+            right: 0;
             font-weight: normal;
             color: #ff0000;
             text-align: right;
             font-size: 20px;
-            padding: 0;
-            margin: 0;
+            font-family: Tahoma, sans-serif;
         }
         
         .no-buses {
@@ -73,24 +78,58 @@
             height: 100%;
             color: #ff0000;
             font-size: 20px;
-            text-align: center;
             font-weight: normal;
+            text-align: center;
+            font-family: Tahoma, sans-serif;
+        }
+        
+        .update-indicator {
+            position: absolute;
+            top: 1px;
+            right: 2px;
+            width: 4px;
+            height: 4px;
+            background: #ff0000;
+            border-radius: 50%;
+            animation: blink 2s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        
+        /* Анимация появления данных */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
 <body>
     <div class="bus-container">
+        <div class="update-indicator"></div>
+        
         <div id="bus-data">
             <!-- Данные автобусов будут загружены здесь -->
-            <div class="bus-row">
+            <div class="bus-row fade-in">
                 <div class="route">7A</div>
                 <div class="destination">АВТОВОКЗАЛ ШЫМБАЙ</div>
                 <div class="time">10</div>
             </div>
-            <div class="bus-row">
+            <div class="bus-row fade-in">
                 <div class="route">7A</div>
                 <div class="destination">ТОРГОВЫЙ КОМПЛЕКС_A</div>
                 <div class="time">23</div>
+            </div>
+            <div class="bus-row fade-in">
+                <div class="route">12</div>
+                <div class="destination">ЦЕНТР</div>
+                <div class="time">5</div>
             </div>
         </div>
     </div>
@@ -118,7 +157,8 @@
             
             displayData.forEach((bus, index) => {
                 const row = document.createElement('div');
-                row.className = 'bus-row';
+                row.className = 'bus-row fade-in';
+                row.style.animationDelay = `${index * 0.1}s`;
                 
                 // Сокращаем длинные названия направлений
                 let destination = bus.destination;
